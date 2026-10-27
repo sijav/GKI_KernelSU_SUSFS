@@ -266,7 +266,7 @@ jobs:
             [susfs_commit_android13_5_10]="cbe3fe7b9fa599d316f68b08b06cde48218eaff5"
             [susfs_commit_android13_5_15]="86b5b10068459dedb545dc5db46a0f0254428eda"
             [susfs_commit_android14_5_15]="10b4f2156470338a5db2040f3d85992c285aa595"
-            [susfs_commit_android14_6_1]="b57ed1998b82c4e3a2a81cdbf11172a560979c40"
+            [susfs_commit_android14_6_1]="24743360ea08d98f6ad72b856851abed8de5854f"
             [susfs_commit_android15_6_6]="4a4cb1be85a4694372d3efb9420de69982eac29a"
             [susfs_commit_android16_6_12]="9c9f19d8395693327c78df36569b44e94c187b8a"
           )
@@ -278,7 +278,7 @@ jobs:
             [susfs_commit_android13_5_10]="cbe3fe7b9fa599d316f68b08b06cde48218eaff5"
             [susfs_commit_android13_5_15]="86b5b10068459dedb545dc5db46a0f0254428eda"
             [susfs_commit_android14_5_15]="10b4f2156470338a5db2040f3d85992c285aa595"
-            [susfs_commit_android14_6_1]="b57ed1998b82c4e3a2a81cdbf11172a560979c40"
+            [susfs_commit_android14_6_1]="24743360ea08d98f6ad72b856851abed8de5854f"
             [susfs_commit_android15_6_6]="4a4cb1be85a4694372d3efb9420de69982eac29a"
             [susfs_commit_android16_6_12]="9c9f19d8395693327c78df36569b44e94c187b8a"
           )
@@ -288,7 +288,7 @@ jobs:
             [susfs_commit_android13_5_10]="cbe3fe7b9fa599d316f68b08b06cde48218eaff5"
             [susfs_commit_android13_5_15]="86b5b10068459dedb545dc5db46a0f0254428eda"
             [susfs_commit_android14_5_15]="10b4f2156470338a5db2040f3d85992c285aa595"
-            [susfs_commit_android14_6_1]="b57ed1998b82c4e3a2a81cdbf11172a560979c40"
+            [susfs_commit_android14_6_1]="24743360ea08d98f6ad72b856851abed8de5854f"
             [susfs_commit_android15_6_6]="4a4cb1be85a4694372d3efb9420de69982eac29a"
             [susfs_commit_android16_6_12]="9c9f19d8395693327c78df36569b44e94c187b8a"
           )
@@ -308,7 +308,7 @@ jobs:
           # KernelSU-Next manager - always built from the official repo's dev branch.
           # pershoot's fork is used only for the kernel SUSFS integration (root_commit below),
           # never for the manager. Manager always builds at latest.
-          emit kernelsu_commit "$(resolve_sha https://github.com/KernelSU-Next/KernelSU-Next.git refs/heads/dev)"
+          emit kernelsu_commit "$(resolve_sha https://github.com/KernelSU-Next/KernelSU-Next.git refs/tags/v3.4.2)"
           echo "kernelsu_branch=dev" >> "$GITHUB_OUTPUT"
 
           # Selected root implementation(s). Maps the human-facing choice
@@ -352,7 +352,7 @@ jobs:
           KOWSU_COMMIT="$(resolve_sha https://github.com/KOWX712/KernelSU.git refs/heads/master)"
           emit kowsu_commit "$KOWSU_COMMIT"
           if [ "$SCHED_SUSFS" = "true" ]; then
-            NEXT_COMMIT="$(resolve_sha https://github.com/pershoot/KernelSU-Next.git refs/heads/dev-susfs)"
+            NEXT_COMMIT="$(resolve_sha https://github.com/pershoot/KernelSU-Next.git refs/tags/v3.4.2)"
           else
             NEXT_COMMIT="$(resolve_sha https://github.com/KernelSU-Next/KernelSU-Next.git refs/heads/dev)"
           fi

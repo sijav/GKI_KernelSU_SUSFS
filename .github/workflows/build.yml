@@ -292,18 +292,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # KernelSU-Next (next) always uses the latest susfs4ksu gki branch tip so
-          # SUSFS stays API-matched to the always-latest KernelSU-Next tree. All
-          # other roots (kernelsu, bakasu, finasu, sukisu-ultra) use the pinned
-          # verified SUSFS commit.
-          if [ "${{ inputs.root_flavor }}" = "next" ]; then
-            BRANCH="gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}"
-            SUSFS_COMMIT="$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git "refs/heads/${BRANCH}" | cut -f1)"
-            echo "KernelSU-Next: resolving SUSFS at latest on ${BRANCH} -> ${SUSFS_COMMIT}"
-          else
-            SUSFS_COMMIT="${{ inputs.susfs_commit }}"
-            echo "Using pinned SUSFS commit: ${SUSFS_COMMIT}"
-          fi
+          # Sijav: KernelSU-Next normally force-pulls the latest susfs4ksu tip, but that tip no longer
+          # applies on 6.1.138 (fs/namespace.c reject). Pin SUSFS from resolve-sources for EVERY root
+          # (including next) so the v3.4.2 build is reproducible and applies cleanly.
+          SUSFS_COMMIT="${{ inputs.susfs_commit }}"
+          echo "Using pinned SUSFS commit: ${SUSFS_COMMIT}"
           echo "commit=${SUSFS_COMMIT}" >> "$GITHUB_OUTPUT"
 
       - name: SUSFS
