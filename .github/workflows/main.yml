@@ -353,13 +353,17 @@ jobs:
           KOWSU_COMMIT="$(resolve_sha https://github.com/KOWX712/KernelSU.git refs/heads/master)"
           emit kowsu_commit "$KOWSU_COMMIT"
           if [ "$SCHED_SUSFS" = "true" ]; then
-            # Kernel-side SUSFS source MUST be pershoot's next-susfs branch (carries the
-            # `config KSU_SUSFS` Kconfig + the namespace.c/cred.h glue). The v3.4.2 TAG does
-            # NOT define KSU_SUSFS, so CONFIG_KSU_SUSFS was silently dropped by olddefconfig.
-            # Pin the next-susfs tip (bfc9d18, ahead of v3.4.2 -> versionCode >= 33355),
-            # paired with susfs4ksu 5369359 (newest commit still targeting 6.1.138; same
-            # SUSFS_VERSION v2.3.0, so API-matched).
-            NEXT_COMMIT="bfc9d1805b653b44151bebfea79592a8da4c3017"
+            # Kernel-side SUSFS source = pershoot's dev-susfs branch, the ACTIVE v3.4.x
+            # SUSFS lineage (it contains cd4a6b46 = the kernel side that built working
+            # v3.4.1, and its tip describes as v3.4.2-63 -> versionCode >= 33355). It
+            # carries the `config KSU_SUSFS` Kconfig and uses the CURRENT susfs4ksu API
+            # (HIDE_SUS_MNTS_FOR_NON_SU_PROCS, susfs_add_sus_path(void**), SUSFS v2.3.0).
+            # NOTE: the `next-susfs` branch is STALE (describe v1.1.1-99, uses the old
+            # ALL_PROCS/struct* API) and the v3.4.2 TAG has no KSU_SUSFS Kconfig at all -
+            # both were dead ends. Pair with susfs4ksu 5369359: same v2.3.0 API as the
+            # susfs4ksu tip but the newest commit still on the 6.1.138 patch baseline
+            # (tip rebased onto 6.1.176 and rejects on 6.1.138).
+            NEXT_COMMIT="d21e0a66c887ae4bc75b7c9f83e41761819ec09a"
           else
             NEXT_COMMIT="$(resolve_sha https://github.com/KernelSU-Next/KernelSU-Next.git refs/heads/dev)"
           fi
