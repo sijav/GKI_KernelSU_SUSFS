@@ -317,11 +317,17 @@ jobs:
           if grep -q 'trace/hooks/blk.h' "$F"; then
             echo "trace/hooks/blk.h already present; nothing to do"
           else
-            HDR=""
-            for h in common/include/trace/hooks/blk.h include/trace/hooks/blk.h; do [ -f "$h" ] && HDR=1 && break; done
-            [ -z "$HDR" ] && echo "WARNING: trace/hooks/blk.h header missing; Hunk #1 may still reject"
+            # 6.1.138 has no trace/hooks/blk.h header; the hunk needs it only as CONTEXT.
+            # Drop an empty stub into the kernel include dir so the context include both
+            # APPLIES (patch) and COMPILES (the susfs blocks use no blk.h symbols). Only
+            # create it where it's genuinely absent, so sublevels that ship it are untouched.
+            for inc in common/include include; do
+              if [ -d "$inc" ] && [ ! -f "$inc/trace/hooks/blk.h" ]; then
+                mkdir -p "$inc/trace/hooks"; : > "$inc/trace/hooks/blk.h"; echo "stub: $inc/trace/hooks/blk.h"
+              fi
+            done
             sed -i '/#include "internal.h"/a #include <trace/hooks/blk.h>' "$F"
-            grep -q 'trace/hooks/blk.h' "$F" && echo "Added trace/hooks/blk.h after internal.h (Hunk #1 context fix)" || { echo "ERROR: insert failed"; exit 1; }
+            grep -q 'trace/hooks/blk.h' "$F" && echo "Added trace/hooks/blk.h include (+ stub header)" || { echo "ERROR: insert failed"; exit 1; }
           fi
 
       - name: SUSFS
