@@ -299,6 +299,31 @@ jobs:
           echo "Using pinned SUSFS commit: ${SUSFS_COMMIT}"
           echo "commit=${SUSFS_COMMIT}" >> "$GITHUB_OUTPUT"
 
+      - name: Pre-fit SUSFS fs/namespace.c Hunk #1 to 6.1.138
+        if: contains(inputs.feature_set, 'SUSFS') || inputs.feature_set == 'All'
+        shell: bash
+        working-directory: ${{ github.workspace }}/kernel
+        run: |
+          set -euo pipefail
+          # susfs4ksu's 50_add_susfs Hunk #1 for fs/namespace.c carries
+          # `#include <trace/hooks/blk.h>` as CONTEXT - present on 6.1.176, absent on
+          # 6.1.138 - so the hunk rejects here (the only one of 10 that does). Add that
+          # one include BEFORE the SUSFS patch (the header exists in the android14-6.1
+          # tree) so the context matches and Hunk #1 applies cleanly. The reject check
+          # lives inside the SUSFS action, so this must run first. Idempotent + reusable.
+          F=""
+          for c in common/fs/namespace.c fs/namespace.c; do [ -f "$c" ] && F="$c" && break; done
+          if [ -z "$F" ]; then echo "namespace.c not found; skipping"; exit 0; fi
+          if grep -q 'trace/hooks/blk.h' "$F"; then
+            echo "trace/hooks/blk.h already present; nothing to do"
+          else
+            HDR=""
+            for h in common/include/trace/hooks/blk.h include/trace/hooks/blk.h; do [ -f "$h" ] && HDR=1 && break; done
+            [ -z "$HDR" ] && echo "WARNING: trace/hooks/blk.h header missing; Hunk #1 may still reject"
+            sed -i '/#include "internal.h"/a #include <trace/hooks/blk.h>' "$F"
+            grep -q 'trace/hooks/blk.h' "$F" && echo "Added trace/hooks/blk.h after internal.h (Hunk #1 context fix)" || { echo "ERROR: insert failed"; exit 1; }
+          fi
+
       - name: SUSFS
         if: contains(inputs.feature_set, 'SUSFS') || inputs.feature_set == 'All'
         uses: ./.github/actions/susfs
